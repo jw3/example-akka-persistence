@@ -1,6 +1,6 @@
 organization := "com.github.jw3"
 name := "example-akka-persistence"
-version := "1.0"
+version := "0.1"
 scalaVersion := "2.11.8"
 
 scalacOptions ++= Seq(
@@ -24,10 +24,14 @@ libraryDependencies ++= {
   val scalatestVersion = "3.0.0"
 
   Seq(
+    "com.github.dnvriend" %% "akka-persistence-jdbc" % "2.6.7",
+    "mysql" % "mysql-connector-java" % "6.0.5",
+
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
     "com.typesafe.akka" %% "akka-persistence" % akkaVersion,
-    "com.github.dnvriend" %% "akka-persistence-jdbc" % "2.6.7",
 
+    "ch.qos.logback" % "logback-classic" % "1.1.7",
+    "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
     "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
 
     "org.scalactic" %% "scalactic" % scalatestVersion % Test,
@@ -35,3 +39,8 @@ libraryDependencies ++= {
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test
   )
 }
+
+enablePlugins(JavaAppPackaging)
+dockerRepository := Some(organization.value)
+dockerBaseImage := "davidcaste/debian-oracle-java:jdk8"
+dockerExposedPorts := Seq(8080)
