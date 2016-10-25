@@ -19,6 +19,7 @@ object Child {
 }
 
 class Child(val persistenceId: String) extends PersistentActor with ActorLogging {
+  log.info("child [{}] created", persistenceId)
 
   def receiveCommand: Receive = {
     case Unpersist ⇒
