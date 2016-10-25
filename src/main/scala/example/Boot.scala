@@ -19,9 +19,7 @@ object Boot extends App with LazyLogging {
 
   val a = p1 ? CreateChild("A")
   a.onComplete { _ ⇒
-    childCount(p1)
-    .map(c ⇒ logger.info(s"(1) child-count: $c"))
-    childCount(p1)
+    childCount(p1).foreach(c ⇒ logger.info(s"(1) child-count: $c"))
   }
 
   Await.ready(a, Duration.Inf)
@@ -31,14 +29,10 @@ object Boot extends App with LazyLogging {
   Thread.sleep(1000)
 
   val p2 = system.actorOf(Parent.props(), "p2")
-  childCount(p2)
-  .map(c ⇒ logger.info(s"(2) child-count: $c"))
+  childCount(p2).map(c ⇒ logger.info(s"(2) child-count: $c"))
 
-
-  val b = p2 ? CreateChild("B")
-  b.onComplete { _ ⇒
-    childCount(p2)
-    .map(c ⇒ logger.info(s"(3) child-count: $c"))
+  (p2 ? CreateChild("B")).onComplete { _ ⇒
+    childCount(p2).foreach(c ⇒ logger.info(s"(3) child-count: $c"))
   }
 
 }
