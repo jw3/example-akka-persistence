@@ -3,7 +3,7 @@ mysql:
   ports:
     - 3306:3306
   volumes:
-    - $PWD/src/main/resources/:/docker-entrypoint-initdb.d/:ro
+    - $PWD/src/main/resources/mysql:/docker-entrypoint-initdb.d:ro
   environment:
     MYSQL_ROOT_PASSWORD: root
     MYSQL_DATABASE: example

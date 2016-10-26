@@ -25,6 +25,8 @@ libraryDependencies ++= {
 
   Seq(
     "com.github.dnvriend" %% "akka-persistence-jdbc" % "2.6.7",
+
+    "org.iq80.leveldb" % "leveldb" % "0.9",
     "mysql" % "mysql-connector-java" % "6.0.5",
 
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
