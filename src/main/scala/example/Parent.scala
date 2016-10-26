@@ -1,13 +1,13 @@
 package example
 
 import akka.actor.{ActorLogging, Props}
-import akka.persistence.{PersistentActor, SnapshotOffer}
+import akka.persistence._
 import example.Child.Unpersist
 import example.Parent.{ChildCount, Children, CreateChild, RemoveChild}
 
 
 object Parent {
-  def props() = Props(new Parent)
+  def props(pid: String) = Props(new Parent(pid))
 
   case class Children(list: Seq[String])
   case object ChildCount
@@ -16,20 +16,30 @@ object Parent {
   case class RemoveChild(id: String)
 }
 
-class Parent extends PersistentActor with ActorLogging {
-  log.info("parent created")
-
-  val persistenceId: String = "parent"
+class Parent(pid: String) extends PersistentActor with ActorLogging {
+  val persistenceId: String = pid
+  log.info("parent actor {} created", persistenceId)
 
   val receiveRecover: Receive = {
+    case RecoveryCompleted ⇒
+      context.parent ! RecoveryCompleted
+
     case SnapshotOffer(_, snapshot: Children) =>
+      log.info("restoring snapshot, {}", snapshot)
       snapshot.list.map(Child.props).map(context.actorOf).foreach(_ ! Unpersist)
   }
 
   val receiveCommand: Receive = {
     case c@CreateChild(id) ⇒
-      sender ! context.actorOf(Child.props(id), id)
+      val child = context.actorOf(Child.props(id), id)
       saveSnapshot(Children(childnames))
+      sender ! child
+
+    case r: SaveSnapshotSuccess ⇒
+      context.parent ! r
+
+    case r: SaveSnapshotFailure ⇒
+      context.parent ! r
 
     case c@RemoveChild(id) ⇒
       context.child(id).foreach { c ⇒

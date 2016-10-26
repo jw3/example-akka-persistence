@@ -1,7 +1,7 @@
 package example
 
-import akka.pattern.ask
 import akka.actor.ActorSystem
+import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import example.Parent.CreateChild
@@ -15,7 +15,7 @@ object Boot extends App with LazyLogging {
   implicit val system = ActorSystem()
   import system.dispatcher
 
-  val p1 = system.actorOf(Parent.props(), "p1")
+  val p1 = system.actorOf(Parent.props("p"))
 
   val a = p1 ? CreateChild("A")
   a.onComplete { _ ⇒
@@ -28,7 +28,7 @@ object Boot extends App with LazyLogging {
 
   Thread.sleep(1000)
 
-  val p2 = system.actorOf(Parent.props(), "p2")
+  val p2 = system.actorOf(Parent.props("p"))
   childCount(p2).map(c ⇒ logger.info(s"(2) child-count: $c"))
 
   (p2 ? CreateChild("B")).onComplete { _ ⇒
