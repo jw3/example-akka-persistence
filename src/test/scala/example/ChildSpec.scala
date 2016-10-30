@@ -15,27 +15,25 @@ class ChildSpec extends TestKit(ActorSystem()) with WordSpecLike with Matchers w
   val ex = new RuntimeException("manually restarted")
 
   "a Child" should {
-    "restart" when {
-      "into the correct state" in {
-        val c = childActorOf(Child.props("c1"))
-        expectMsg(RecoveryCompleted)
-        
-        c ! Activate
-        expectMsgType[SaveSnapshotSuccess]
+    "restart into the correct state" in {
+      val c = childActorOf(Child.props("c1"))
+      expectMsg(RecoveryCompleted)
 
-        c ! QueryState
-        expectMsg(Activated)
+      c ! Activate
+      expectMsgType[SaveSnapshotSuccess]
 
-        watch(c)
-        c ! PoisonPill
-        expectTerminated(c)
+      c ! QueryState
+      expectMsg(Activated)
 
-        val r = childActorOf(Child.props("c1"))
-        expectMsg(RecoveryCompleted)
+      watch(c)
+      c ! PoisonPill
+      expectTerminated(c)
 
-        r ! QueryState
-        expectMsg(Activated)
-      }
+      val r = childActorOf(Child.props("c1"))
+      expectMsg(RecoveryCompleted)
+
+      r ! QueryState
+      expectMsg(Activated)
     }
   }
 }

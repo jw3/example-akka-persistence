@@ -2,6 +2,7 @@ package example
 
 import akka.actor.{ActorLogging, Props}
 import akka.persistence._
+import example.Child.QueryState
 import example.Parent._
 
 
@@ -13,6 +14,7 @@ object Parent {
 
   case class CreateChild(id: String)
   case class RemoveChild(id: String)
+  case class MessageChild(cid: String, m: AnyRef)
 }
 
 class Parent(val persistenceId: String) extends PersistentActor with ActorLogging {
@@ -47,6 +49,9 @@ class Parent(val persistenceId: String) extends PersistentActor with ActorLoggin
 
     case ChildCount ⇒
       sender ! context.children.size
+
+    case QueryState ⇒
+      context.children.foreach(_ forward QueryState)
   }
 
   def childnames: Seq[String] = context.children.seq.map(_.path.name).toSeq
